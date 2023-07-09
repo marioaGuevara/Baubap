@@ -16,6 +16,8 @@ db_cursor = DB.cursor()
 t1, t2, t3 = st.tabs(['Exercise 1', 'Exercise 2', 'Exercise 3'])
 
 with t1:
+    st.header("Q: Calculate the percentage of loans that were declined in the month of April 2019.")
+    st.write(" ")
     st.header("Answer")
     declinedDf = pd.read_sql_query(con=DB,sql=query1)
 
@@ -31,9 +33,15 @@ with t1:
 
 # 
 with t2:
+    st.header("Q: Create a table showing for each user their most recent loanId, their previous loanId, and the difference in days between those two loans.")
+    st.write(" ")
+    st.header("Answer")
+    st.dataframe(pd.read_sql_query(con=DB,sql=query2))
+
+    st.write(" ")
+    st.subheader("Here's the code")
     st.code(query2)
 
-    st.write(pd.read_sql_query(con=DB,sql=query2))
 
 with t3: 
     st.header('I wanted to see if there was a correlation between loan amount and the payment likelyhood')
