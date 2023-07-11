@@ -30,12 +30,13 @@ if check_password():
                 return True
             return False
             
+        
         st.header("Insight:")
-        st.subheader("Our 2 biggest student cohorts are churning disproportionately, we can prevent that by pushing for more enrollment in courses.")
+        st.subheader("Our 2 biggest student cohorts are churning disproportionately as compared to other important cohorts (65% vs +77% retention)")
         
         st.header("Explanation:")
         st.write("For the first analysis I wanted to take advantage of the demographical data that we have available and focus on understand our most important cohorts.")
-
+        df['isPrio'] = df.apply(setPriorityCohort, axis=1)
         dfTop = df[['genero', 'esEstudiante', 'casado', 'tieneHijos', 'cargosAccumulados', 'CustomerID', 'usuarioPerdido','cargosMensuales','antiguidad', 'numeroCursosInscritos']]
 
         dfTop = dfTop.rename(columns={"casado": "Married",
@@ -63,7 +64,7 @@ if check_password():
         st.subheader("Now that we have identified our top customers based on their demographics, we can play close attention to their behaviour.")
         
         dfTopRawOne = df 
-        dfTopRawOne['isPrio'] = df.apply(setPriorityCohort, axis=1)
+        # dfTopRawOne['isPrio'] = df.apply(setPriorityCohort, axis=1)
         dfTopRaw = dfTopRawOne
 
         fig = px.parallel_categories(dfTopRaw.loc[dfTopRaw['isPrio'] == True],
@@ -143,7 +144,7 @@ if check_password():
         c21, c31 = st.columns(2)
         with c21:
             st.write("A correlation plot confirms that usuarioPerdido (churn) is highly correlated with the number of courses in which a user is enrolled.")
-            st.write("As we can see, this means that there's a high correlation between a churned user and  the number of courses in which they enroll.")
+            st.write("As we can see, this means that there's a high correlation between a churned user and  the number of courses in which they enroll, however, it's always important to remember that using a correlation index is not always advisable when using binary series.")
         
         with c31:
             dfCorr=pd.DataFrame()
@@ -155,14 +156,51 @@ if check_password():
             st.write(dfCorr.corr())
             # dfTopRaw.rename(columns=('numeroCursosInscritos':'nEnrrolledCourses'))
         
-        st.header("Conclusion")
-        st.write("Based on the number of courses users enroll on - our top users are churning because they don't see the value in our platform, however, once we can prove our worth, they tend to stay with us at a higher rate than those with poor engagement (< 4 courses)")
+        dfEnrolled = df.loc[df['isPrio'] == True][['usuarioPerdido', 'numeroCursosInscritos', 'CustomerID']].groupby('numeroCursosInscritos').agg({'usuarioPerdido': 'sum', 'CustomerID': 'count'}).reset_index()
+        dfEnrolled['Enrolled Courses'] = dfEnrolled['numeroCursosInscritos']
+        dfEnrolled['Churned'] = dfEnrolled['usuarioPerdido']
+        dfEnrolled['Active'] = dfEnrolled['CustomerID'] -  dfEnrolled['usuarioPerdido']
+        dfEnrolled['Churn Rate'] = dfEnrolled['usuarioPerdido'] / dfEnrolled['CustomerID']
+        dfEnrolled = dfEnrolled.drop(columns=['usuarioPerdido', 'CustomerID', 'numeroCursosInscritos'])
         
-        
-        
-    
-        
+        bar_trace_active_enr = go.Bar(x=dfEnrolled['Enrolled Courses'], 
+                            y=dfEnrolled['Active'], 
+                            name='Active', 
+                            text=["Active Users: " + str(x) for x in dfEnrolled['Active']],
+                            yaxis='y'
+                            )
+        bar_trace_churned = go.Bar(x=dfEnrolled['Enrolled Courses'], 
+                            y=dfEnrolled['Churned'], 
+                            name='Churned', 
+                            text=["Churned: " + str(x) for x in dfEnrolled['Churned']],
+                            yaxis='y'
+                            )
+        line_trace_courses_churn = go.Scatter(    
+            x=dfEnrolled['Enrolled Courses'],
+            y=dfEnrolled['Churn Rate'],
+            textposition='top center',
+            mode='lines+markers',
+            name='Churn Rate',
+            text=dfEnrolled['Churn Rate'].round(2),
+            yaxis='y2'
+        )
+        layout = go.Layout(
+                yaxis=dict(title='Customers', showgrid=False), barmode='relative',
+                yaxis2=dict(title='', overlaying='y', side='right')
+                # , showgrid=False, showdividers=False, showline =False, zeroline=False, showticklabels=False
+            )
+        fig.update_layout(title=dict(automargin=False), margin=dict(t=0, b=0))
+        fig = go.Figure(data=[bar_trace_active_enr, bar_trace_churned, line_trace_courses_churn], layout=layout)
 
+        st.write("Let's double check that and plot the number of courses and users based on if they have churned or not.")
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.header("Business discussion")
+        st.write("Based on the data, it seems safe to conclude that Churn Rate drops dramatically - by 23bps - after a user is enrolled in a second course.")
+        st.write("Meanwhile, our 2 biggest student cohorts are churning disproportionately as compared to others similar in size (65% vs +77% retention).")
+        st.write("Should we push for users to signup for more than one course from the signup? - Based on: the correlation between Churn Rate and Enrolled Courses")
+        st.write("Can we target more married customers? - Based on: Better performance overall from married customers")
+        
 
     #Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2
     #Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2#Insight 2
@@ -279,9 +317,9 @@ if check_password():
         
         dfIssiesWithPlatformRaw 
         
-        st.header('Conclusion')
-        st.write('1.- As we scale, a strong Customer Success / Support team might be a factor to consider in our cost structure, user might need more guidance than we are anticipating or...')
-        st.write("2.- We need to improve upon our UI/UX.")
+        st.header('Business Discussion')
+        st.write("Based on these findings, we could conclude that our mobile apps have some areas of opportunity and/or that our users need more guidance and support in their leaning journey.")
+        st.write('As we scale, a strong Customer Success / Support team might be a factor to consider in our cost structure, on the other hand, we could aim to improve upon our UX/UI which could have an impact on retention.')
 
 
 
