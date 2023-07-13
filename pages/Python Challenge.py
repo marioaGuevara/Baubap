@@ -19,11 +19,8 @@ st.set_page_config(layout="wide")
 
 if check_password():
     t1, t2, t3 =  st.tabs(["Learners Cohorts", "Support", "Payment Method"])
-    # Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1
-    # Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1
-    # Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1# Insight 1
+
     with t1:
-        
         def setPriorityCohort(row):
             if (row['genero'] == 'Masculino' and row['esEstudiante'] == 0 and row['casado'] == "Sí") or (row['genero'] == 'Masculino' and row['esEstudiante'] == 0 and row['casado'] == "No" and row['tieneHijos'] == "No"):
                 return True
@@ -69,7 +66,7 @@ if check_password():
         dfTop['Enrolled Courses'] = dfTop['numeroCursosInscritos'].round(1)
         dfTop['Time in Platform'] = dfTop['antiguidad'].round(1)
         dfTop= dfTop.loc[dfTop['rank'] <= 6]
-        st.dataframe(dfTop[['rank', 'Cumulative Spent', 'Active Customers', 'Churned Learners', 'Retention Rate', 'Enrolled Courses', 'Time in Platform']].sort_values('rank'), use_container_width=True)
+        
         
         st.subheader("Now that we have identified our top customers based on their demographics, we can play close attention to their behaviour.")
         
@@ -80,6 +77,7 @@ if check_password():
         )
         fig.update_layout(margin=dict(b=0))
         st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(dfTop[['rank', 'Cumulative Spent', 'Active Customers', 'Churned Learners', 'Retention Rate', 'Enrolled Courses', 'Time in Platform']].sort_values('rank'), use_container_width=True)
         
         dfTopRaw = dfTopRaw.loc[dfTopRaw['isPrio'] == True]
         dfTopRaw['KidsCohort'] = np.where(dfTopRaw['tieneHijos'] == "No", " - No-kids", " - Kids")
