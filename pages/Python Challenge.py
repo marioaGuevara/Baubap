@@ -65,11 +65,11 @@ if check_password():
             fig = px.pie(dfTop[['Top cohort', 'percentOfTotal']], names='Top cohort', values='percentOfTotal')
             st.plotly_chart(fig, use_container_width=True)
         
-        dfTop['Churned Users'] = dfTop['usuarioPerdido']
+        dfTop['Churned Learners'] = dfTop['usuarioPerdido']
         dfTop['Enrolled Courses'] = dfTop['numeroCursosInscritos'].round(1)
         dfTop['Time in Platform'] = dfTop['antiguidad'].round(1)
         dfTop= dfTop.loc[dfTop['rank'] <= 6]
-        st.dataframe(dfTop[['rank', 'Cumulative Spent', 'Active Customers', 'Churned Users', 'Retention Rate', 'Enrolled Courses', 'Time in Platform']].sort_values('rank'), use_container_width=True)
+        st.dataframe(dfTop[['rank', 'Cumulative Spent', 'Active Customers', 'Churned Learners', 'Retention Rate', 'Enrolled Courses', 'Time in Platform']].sort_values('rank'), use_container_width=True)
         
         st.subheader("Now that we have identified our top customers based on their demographics, we can play close attention to their behaviour.")
         
@@ -332,7 +332,7 @@ if check_password():
     with t3:
         dfRetentionByPlan = df.loc[df['usuarioPerdido']==0]
         st.header("Insight")
-        st.subheader("Autopay drives reneue ($65 per month <> $58 in manual pay), loyalty (56% Retention at 48 Month mark vs 25% in autopay), and promotes paying for individual content (44% of autopay users have paid for individual content vs 28%).")
+        st.subheader("Autopay drives reneue ($65 per month <> $58 in manual pay), loyalty (56% Retention at 48 Month mark vs 25% in autopay), and promotes paying for individual content (44% of autopay Learners have paid for individual content vs 28%).")
         st.header("Analysis")
         dfRetentionByPlan['haPagadoContenidoIndividual'] = np.where(dfRetentionByPlan['haPagadoContenidoIndividual'] == 'Sí', 1, 0)
         dfRetentionByPlan['haContactoASoporte'] = np.where(dfRetentionByPlan['haContactoASoporte'] == 'Sí', 1, 0)
@@ -477,4 +477,5 @@ if check_password():
             st.plotly_chart(px.bar(time_series_no_change, x='Month', y='Rev', color='Revenue', text=time_series_no_change['Rev'].astype(int).apply(lambda x: "{:,.0f}k".format(x/1000))))
         
         st.header("How can we improve upon this analysis?")
-        st.write("")
+        st.write("I am asuming the main reason why people on average spend more per month when they have autopay enabled is ease of use, however, a better analysis would look more into the reasons why this happens.")
+        st.write("Maybe is just a more price sensitive group of learners")
