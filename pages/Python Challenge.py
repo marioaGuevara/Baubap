@@ -1,3 +1,4 @@
+import math
 import plotly.graph_objects as go
 import streamlit as st
 import gdown
@@ -49,7 +50,7 @@ if check_password():
         dfTop['Top cohort'] = np.where(dfTop['rank'] <= 6, True,False)
         
         st.header("Insight:")
-        st.subheader("Our 2 biggest student cohorts are churning disproportionately as compared to other important cohorts (65% vs +77% retention)")
+        st.subheader("Our 2 biggest student cohorts are churning disproportionately as compared to other important cohorts.")
         
         st.header("Explanation:")
         st.write("For the first analysis I wanted to take advantage of the demographical data that we have available and focus on understand our most important cohorts.")
@@ -77,7 +78,6 @@ if check_password():
         )
         fig.update_layout(margin=dict(b=0))
         st.plotly_chart(fig, use_container_width=True)
-        st.dataframe(dfTop[['rank', 'Cumulative Spent', 'Active Customers', 'Churned Learners', 'Retention Rate', 'Enrolled Courses', 'Time in Platform']].sort_values('rank'), use_container_width=True)
         
         dfTopRaw = dfTopRaw.loc[dfTopRaw['isPrio'] == True]
         dfTopRaw['KidsCohort'] = np.where(dfTopRaw['tieneHijos'] == "No", " - No-kids", " - Kids")
@@ -107,7 +107,7 @@ if check_password():
             x=dfTopRaw['Cohort'], 
             y=dfTopRaw['Churn'], 
             name='Churn', 
-            text=["Churned Learners: " + str(x) for x in dfTopRaw['Active']],
+            text=["Churned Learners: " + str(x) for x in dfTopRaw['Churn']],
             yaxis='y'
         )
 
@@ -141,7 +141,7 @@ if check_password():
             )
         fig.update_layout(title=dict(automargin=False), margin=dict(t=0, b=0))
         fig = go.Figure(data=[bar_trace_active, bar_trace_churn,line_trace, line_trace_courses], layout=layout)
-        
+        # st.dataframe(dfTop[['rank', 'Cumulative Spent', 'Active Customers', 'Churned Learners', 'Retention Rate', 'Enrolled Courses', 'Time in Platform']].sort_values('rank'), use_container_width=True)
         st.write("From this view we can understand our current base better, non-students without kids seem to be the majority our our top Learners.")
         
         st.subheader("Let's plot Active Learners, Churned Learners, Retention Rate and the # of Enrolled Courses together.")
@@ -213,10 +213,18 @@ if check_password():
         st.plotly_chart(fig, use_container_width=True)
 
         st.header("Business discussion")
+        st.subheader("Should we push for more enrollment?")
+        db1, db2 = st.columns(2)
+        with db1:
+            st.metric('Churn when enrolled in a second course', '29%', '-23bps', delta_color="inverse")
+        # with db2:
+            # st.metric('lowest retention in comparable cohorts', '77%', '63%')
         st.write("Based on the data, it seems safe to conclude that Churn Rate drops dramatically - by 23bps - after a user is enrolled in a second course.")
         st.write("Meanwhile, our 2 biggest student cohorts are churning disproportionately as compared to others similar in size (65% vs +77% retention).")
         st.write("Should we push for Learners to signup for more than one course from the signup? - Based on: the correlation between Churn Rate and Enrolled Courses")
-        st.write("Can we target more married customers? - Based on: Better performance overall from married customers")
+
+        st.subheader("Should we target married customers?")
+        st.write("Married customers have better retention")
 
         st.header("How can we improve upon this analysis?")
         st.write("This data set is a picture taken at a certain point in time, which limits the understanding we can have on why some some Learners stayed with us longer than others.")
@@ -234,7 +242,7 @@ if check_password():
                 return '4 Tablet + Mobile'
         
         st.header("Insight")
-        st.subheader("Learners that contacted support are between 33% to 71% less likely to churn.")
+        st.subheader("Contacting Support drives retention.")
         st.header("Explanation")
         dfIssiesWithPlatform = df[['haContactoASoporte', 'usaTabletParaAcceder', 'usaMovilParaAcceder', 'CustomerID', 'usuarioPerdido']]
         dfIssiesWithPlatform['haContactoASoporte'] = np.where(dfIssiesWithPlatform['haContactoASoporte'] == 'Sí', 1, 0)
@@ -328,9 +336,18 @@ if check_password():
         st.write("We are missing the reasons why people contacted support and asuming it was due to some issues with our platform.")
     
     with t3:
+        def break_even(time_series_all, meses):
+            investment = sum(time_series_all.loc[(time_series_all.Type == 'RR Change') & (time_series_all.Month <= meses)]['Revenue'])
+            normal = sum(time_series_all.loc[(time_series_all.Type == 'RR No Change') & (time_series_all.Month <= meses)]['Revenue'])
+            new_rr = sum(time_series_all.loc[(time_series_all.Type == 'RR Change') & (time_series_all.Month > meses)]['Revenue'])
+            old_rr = sum(time_series_all.loc[(time_series_all.Type == 'RR No Change') & (time_series_all.Month > meses)]['Revenue'])
+            difference_rr = new_rr - old_rr 
+            investment = normal - investment
+            return investment / (difference_rr / (12 - meses))
         dfRetentionByPlan = df.loc[df['usuarioPerdido']==0]
         st.header("Insight")
-        st.subheader("Autopay drives reneue ($65 per month <> $58 in manual pay), loyalty (56% Retention at 48 Month mark vs 25% in autopay), and promotes paying for individual content (44% of autopay Learners have paid for individual content vs 28%).")
+        # st.subheader("Autopay drives reneue ($65 per month <> $58 in manual pay), loyalty (56% Retention at 48 Month mark vs 25% in autopay), and promotes paying for individual content (44% of autopay Learners have paid for individual content vs 28%).")
+        st.subheader("Autopay drives reneue, loyalty, and promotes paying for individual content.")
         st.header("Analysis")
         dfRetentionByPlan['haPagadoContenidoIndividual'] = np.where(dfRetentionByPlan['haPagadoContenidoIndividual'] == 'Sí', 1, 0)
         dfRetentionByPlan['haContactoASoporte'] = np.where(dfRetentionByPlan['haContactoASoporte'] == 'Sí', 1, 0)
@@ -408,6 +425,7 @@ if check_password():
         st.subheader("We can create an initiative to drive more business.")
         st.write("Taking into account active clients only, here's how our monthly revenue looks like")
         c61, c62, c63 = st.columns(3)
+        
         with c61:
             discount =st.slider('Select a discount %?', 1, 50, 15)
         
@@ -447,7 +465,7 @@ if check_password():
         time_series_all['RR Change'] = dfExp['RR Change'] 
         time_series_all['RR No Change'] = dfExp['RR No Change']
         time_series_all = time_series_all.melt(id_vars='Month', var_name='Type', value_name='Revenue')
-        
+        be = break_even(time_series_all, meses)
         line_yes = go.Scatter(    
             x=time_series_no_change['Month'],
             y=time_series_no_change['Revenue'],
@@ -458,7 +476,7 @@ if check_password():
             hovertemplate=time_series_no_change['Revenue'].apply(lambda x: "${}".format(x)),
             yaxis='y2'
         )
-
+        st.metric("Break event a month:", math.ceil(be))
         layout = go.Layout(
                 yaxis=dict(title='Customers', showgrid=False), barmode='relative'
             )
@@ -474,6 +492,9 @@ if check_password():
         with c72:
             st.plotly_chart(px.bar(time_series_no_change, x='Month', y='Rev', color='Revenue', text=time_series_no_change['Rev'].astype(int).apply(lambda x: "{:,.0f}k".format(x/1000))))
         
+        
         st.header("How can we improve upon this analysis?")
         st.write("I am asuming the main reason why people on average spend more per month when they have autopay enabled is ease of use, however, a better analysis would look more into the reasons why this happens.")
         st.write("Maybe is just a more price sensitive group of learners")
+
+        

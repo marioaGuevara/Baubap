@@ -23,6 +23,9 @@ if check_password():
         <li>
             <p>Business discussion: Let's discuss what this means for our business.</p>
         </li>
+        <li>
+            <p>How an we improve upon this analysis? My ideas on how the analysis could be refined.</p>
+        </li>
     </ol>
     """, unsafe_allow_html=True)
 
