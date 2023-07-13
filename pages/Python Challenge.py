@@ -166,6 +166,7 @@ if check_password():
         with c31:
             st.write("A correlation plot suggest that Churn is highly correlated with the number of courses in which a user is enrolled.")
             st.write("As we can see, this could mean that there's a high correlation between a churned user and  the number of courses in which they enroll, however, it's always important to remember that using a correlation index is not always advisable when using binary series.")
+            st.markdown("[Example](https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ffthmb.tqn.com%2F-pfquTGWGEo1ATUQZfwvxmcNH4c%3D%2F1500x1000%2Ffilters%3Afill(auto%2C1)%2FTC_3126228-how-to-calculate-the-correlation-coefficient-5aabeb313de423003610ee40.png&f=1&nofb=1&ipt=a07ac65f2674dac23292ea3eb5ace71e29774dab3a1508ed1a35a0cb75aa59e0&ipo=images)")
             
         
         dfEnrolled = df.loc[df['isPrio'] == True][['usuarioPerdido', 'numeroCursosInscritos', 'CustomerID']].groupby('numeroCursosInscritos').agg({'usuarioPerdido': 'sum', 'CustomerID': 'count'}).reset_index()
